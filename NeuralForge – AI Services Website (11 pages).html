@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NeuralForge – AI Services</title>
+<style>
+:root{--bg:#04050b;--ink:#e8f1ff;--dim:#8a97b8;--cy:#00e5ff;--mg:#ff2fd0;--vi:#7b5cff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{margin:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 18px) 5vw 18px;backdrop-filter:blur(8px);background:linear-gradient(#04050bcc,#04050b00)}
+.logo{font-weight:700;letter-spacing:.14em;font-size:14px}
+.logo b{color:var(--cy)}
+nav a{color:var(--dim);text-decoration:none;font-size:13px;margin-left:24px}
+nav a:hover{color:var(--ink)}
+#hero{height:640vh;position:relative}
+#stage{position:sticky;top:0;height:100vh;overflow:hidden;background:radial-gradient(ellipse at 64% 45%,#0b1230 0,#04050b 65%)}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.copy{position:absolute;left:5vw;top:50%;transform:translateY(-40%);max-width:min(460px,88vw);opacity:0;pointer-events:none;transition:opacity .6s,transform .6s}
+.copy.on{opacity:1;transform:translateY(-50%);pointer-events:auto}
+.copy small{color:var(--cy);letter-spacing:.25em;font-size:11px;text-transform:uppercase}
+.copy h1,.copy h2{font-size:clamp(30px,5vw,60px);line-height:1.04;letter-spacing:-.03em;margin:12px 0 14px;font-weight:600}
+.copy h1 span,.copy h2 span{background:linear-gradient(90deg,var(--cy),var(--mg));-webkit-background-clip:text;background-clip:text;color:transparent}
+.copy p{color:var(--dim);line-height:1.6;font-size:15px;margin-bottom:22px}
+.btn{display:inline-block;padding:13px 26px;border-radius:99px;background:linear-gradient(90deg,var(--cy),var(--vi));color:#031018;font-weight:600;font-size:14px;text-decoration:none;box-shadow:0 0 30px #00e5ff55;transition:transform .2s}
+.btn:hover{transform:translateY(-2px)}
+.hint{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim)}
+.bar{position:absolute;right:3vw;top:50%;width:2px;height:120px;transform:translateY(-50%);background:#ffffff18}
+.bar i{display:block;width:100%;height:0;background:linear-gradient(var(--cy),var(--mg))}
+.cards{position:absolute;left:5vw;top:50%;transform:translateY(-50%);width:min(360px,44vw);display:flex;flex-direction:column;gap:14px;z-index:3}
+.ct{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);opacity:0;transition:opacity .5s}.ct.on{opacity:1}
+.scard{--c:#fff;position:relative;display:flex;gap:14px;align-items:center;padding:16px 18px;border-radius:16px;background:rgba(10,16,40,.72);backdrop-filter:blur(6px);border:1px solid #ffffff18;opacity:0;transition:opacity .5s,border-color .5s,box-shadow .5s,background .5s}
+.scard.on{opacity:1}
+.scard .ic{font-style:normal;font-size:24px}
+.scard h3{font-size:15px;transition:color .5s,text-shadow .5s}.scard p{font-size:12px;color:var(--dim);line-height:1.4}
+.scard .st{position:absolute;top:9px;right:14px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--c);opacity:0;transition:opacity .5s}
+.scard.live{border-color:var(--c);background:rgba(14,22,52,.88);box-shadow:0 0 34px -2px var(--c),inset 0 0 22px -10px var(--c)}
+.scard.live .st{opacity:1}.scard.live .ic{filter:drop-shadow(0 0 8px var(--c))}.scard.live h3{color:var(--c);text-shadow:0 0 14px var(--c)}
+.port{position:absolute;right:-7px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;border:2px solid var(--c);background:#04050b;box-shadow:0 0 10px var(--c)}
+@media(max-width:700px){.cards{left:3vw;right:3vw;width:auto;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 34px);transform:none;display:grid;grid-template-columns:1fr 1fr;gap:12px}.ct{grid-column:1/-1}.scard{padding:10px 12px;flex-direction:column;align-items:flex-start;gap:4px}.scard p{display:none}.scard .st{position:static;font-size:8px}.port{right:auto;left:50%;top:-7px;margin:0 0 0 -6px}}
+section.sv{padding:14vh 5vw;max-width:1200px;margin:auto}
+section.sv h2{font-size:clamp(28px,4vw,46px);letter-spacing:-.02em;margin-bottom:10px}
+section.sv>p{color:var(--dim);margin-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.card{padding:26px;border-radius:18px;background:linear-gradient(160deg,#0d1430,#070a18);border:1px solid #ffffff14;transition:.3s}
+.card:hover{border-color:var(--cy);box-shadow:0 0 36px #00e5ff30;transform:translateY(-4px)}
+.card i{font-style:normal;font-size:26px}
+.card h3{margin:14px 0 8px;font-size:18px}
+.card p{color:var(--dim);font-size:14px;line-height:1.55}
+footer{text-align:center;padding:12vh 5vw 16vh}
+footer h2{font-size:clamp(26px,4vw,44px);margin-bottom:22px;letter-spacing:-.02em}
+
+.btn{background:linear-gradient(90deg,#2a6bff,#00a2ff)!important;color:#fff!important;box-shadow:0 0 30px #2a6bff66!important}
+main{display:none;position:relative;z-index:1}main.on{display:block}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.cur{position:fixed;left:0;top:0;width:320px;height:320px;margin:-160px 0 0 -160px;border-radius:50%;background:radial-gradient(#2a6bff24,transparent 65%);pointer-events:none;z-index:0}
+@media(hover:none){.cur{display:none}}
+.wipe{position:fixed;inset:0;z-index:9;pointer-events:none;background:linear-gradient(90deg,transparent,#2a6bff77 50%,transparent);transform:translateX(-100%)}
+.wipe.go{animation:wp .7s ease}@keyframes wp{to{transform:translateX(100%)}}
+.logo{color:var(--ink)!important;margin:0!important;text-decoration:none}
+.links{display:flex;align-items:center}.links a.on{color:var(--ink)}.links .cta-s{padding:8px 18px;border-radius:99px;border:1px solid #2a6bff;color:var(--ink);box-shadow:0 0 16px #2a6bff55}
+.burger{display:none;background:none;border:0;color:var(--ink);font-size:24px}
+@media(max-width:820px){.burger{display:block}.links{position:fixed;top:0;right:0;bottom:0;width:70vw;background:#070b1c;flex-direction:column;align-items:flex-start;padding:90px 30px;gap:20px;transform:translateX(100%);transition:.3s}.links.open{transform:none}nav .links a{margin:0}}
+.pg{padding:17vh 5vw 8vh;max-width:1180px;margin:auto}
+.pg h1{font-size:clamp(34px,6vw,64px);letter-spacing:-.03em;line-height:1.05;margin-bottom:14px}
+.pg h1::after{content:"";display:block;height:2px;width:0;margin-top:18px;background:linear-gradient(90deg,#2a6bff,transparent);box-shadow:0 0 14px #2a6bff;animation:ln 1.2s .2s forwards}@keyframes ln{to{width:min(420px,70%)}}
+.hl,.pg h1 span,.sec h2 span{background:linear-gradient(90deg,#2a6bff,#00e5ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--dim);max-width:640px;line-height:1.7;margin-bottom:40px}
+.sec{padding:9vh 5vw;max-width:1180px;margin:auto}.sec h2{font-size:clamp(26px,4vw,42px);letter-spacing:-.02em}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.card{position:relative;overflow:hidden;padding:26px;border-radius:18px;background:linear-gradient(160deg,#0d1430,#070a18);border:1px solid #ffffff14;transition:.3s;color:inherit;text-decoration:none;display:block}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--x,50%) var(--y,0),#2a6bff2e,transparent 60%);opacity:0;transition:.3s}
+.card:hover{border-color:#2a6bff;transform:translateY(-4px)}.card:hover::before{opacity:1}
+.card>*{position:relative}.card i{font-style:normal;font-size:26px}.card h3{margin:12px 0 8px;font-size:18px}.card p,.card li{color:var(--dim);font-size:14px;line-height:1.6}.card ul{padding-left:18px;margin-top:10px}
+.num{font-size:clamp(34px,5vw,54px);font-weight:700;color:#2a6bff;text-shadow:0 0 24px #2a6bff88}
+.tag{display:inline-block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#2a6bff;margin-bottom:8px}
+.pri{font-size:38px;font-weight:700;margin:10px 0}.pri small{font-size:13px;color:var(--dim);font-weight:400}.card.hot{border-color:#2a6bff;box-shadow:0 0 40px -10px #2a6bff}
+details{border:1px solid #ffffff14;border-radius:14px;padding:16px 20px;margin-bottom:12px;background:#080c20}summary{cursor:pointer;font-weight:600}details p{color:var(--dim);margin-top:10px;line-height:1.6}
+form{display:grid;gap:14px;max-width:560px}input,select,textarea{width:100%;padding:14px;border-radius:12px;border:1px solid #ffffff20;background:#080c20;color:var(--ink);font:inherit}input:focus,select:focus,textarea:focus{outline:none;border-color:#2a6bff;box-shadow:0 0 18px #2a6bff55}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s,border-color .3s}.rv.in{opacity:1;transform:none}
+.band{margin:6vh 5vw;padding:7vh 5vw;border-radius:26px;text-align:center;background:radial-gradient(ellipse at 50% 0,#1a3a9a55,#070a18);border:1px solid #2a6bff55}.band h2{font-size:clamp(26px,4vw,44px);margin-bottom:18px}
+footer{text-align:left;border-top:1px solid #ffffff12;padding:8vh 5vw 5vh;position:relative;z-index:1}.fg{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:30px;max-width:1180px;margin:auto}@media(max-width:700px){.fg{grid-template-columns:1fr 1fr}}
+footer h4{font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px;color:var(--dim)}footer a{display:block;color:var(--dim);text-decoration:none;font-size:14px;margin-bottom:8px}footer a:hover{color:var(--ink)}.cr{max-width:1180px;margin:30px auto 0;color:var(--dim);font-size:12px}
+.wa{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:6;width:52px;height:52px;border-radius:50%;background:#25d366;display:grid;place-items:center;font-size:24px;text-decoration:none;box-shadow:0 0 24px #25d36688}
+.done{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 60px);left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:.6s;z-index:4;white-space:nowrap}.done.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.art{max-width:720px}.art p,.leg p{color:#c3cde6;line-height:1.8;margin-bottom:18px}.leg h3{margin:26px 0 8px}
+.av{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:linear-gradient(135deg,#2a6bff,#00e5ff);color:#04050b;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="cur"></div><canvas id="bg"></canvas><div class="wipe"></div>
+<nav><a class="logo" href="#/">NEURAL<b>FORGE</b></a><button class="burger" aria-label="Menu">☰</button>
+<div class="links"><a href="#/">Home</a><a href="#/services">Services</a><a href="#/work">Work</a><a href="#/pricing">Pricing</a><a href="#/blog">Blog</a><a href="#/about">About</a><a href="#/faq">FAQ</a><a class="cta-s" href="#/contact">Contact</a></div></nav>
+
+<main id="home" class="on"><section id="hero">
+  <div id="stage">
+    <canvas id="c"></canvas>
+    <div class="copy on" data-s="0"><small>AI Services Agency</small><h1>Intelligence, <span>built for your business.</span></h1><p>We design AI automations, chatbots and AI video ads that work while you sleep. Move your mouse and scroll to explore.</p><a class="btn" href="#/contact">Get a free AI audit</a></div>
+    <div class="copy" data-s="1"><small>Inside the mind</small><h2>We open up <span>the AI brain.</span></h2><p>Every workflow, prompt and model is engineered from the inside out.</p></div>
+    <div class="cards" id="cards"><div class="ct" id="ct">Plugging into your business ⚡</div>
+      <div class="scard" data-c="#2a6bff"><i class="ic">⚙️</i><div><h3>AI Automation</h3><p>n8n workflows that connect your tools.</p></div><span class="st">● Connected</span><i class="port"></i></div>
+      <div class="scard" data-c="#2a6bff"><i class="ic">🎬</i><div><h3>AI Video Ads</h3><p>Scroll-stopping ads for TikTok &amp; Meta.</p></div><span class="st">● Connected</span><i class="port"></i></div>
+      <div class="scard" data-c="#2a6bff"><i class="ic">💬</i><div><h3>Custom Chatbots</h3><p>WhatsApp &amp; website bots on your data.</p></div><span class="st">● Connected</span><i class="port"></i></div>
+      <div class="scard" data-c="#2a6bff"><i class="ic">🧠</i><div><h3>Prompt Engineering</h3><p>Reliable prompts &amp; agents.</p></div><span class="st">● Connected</span><i class="port"></i></div>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+    <a class="btn done" id="done" href="#/contact">All systems online — start your project →</a>
+    <div class="hint">Scroll · Move mouse</div>
+  </div>
+</section></main><main id="view"></main>
+<footer><div class="fg"><div><div class="logo" style="margin-bottom:12px">NEURAL<b style="color:#2a6bff">FORGE</b></div><p style="color:var(--dim);font-size:14px;line-height:1.6;max-width:300px">AI automation, video ads, chatbots and prompt engineering for modern businesses.</p></div>
+<div><h4>Company</h4><a href="#/about">About</a><a href="#/work">Work</a><a href="#/blog">Blog</a><a href="#/contact">Contact</a></div>
+<div><h4>Services</h4><a href="#/services">AI Automation</a><a href="#/services">AI Video Ads</a><a href="#/services">Chatbots</a><a href="#/pricing">Pricing</a></div>
+<div><h4>Legal</h4><a href="#/privacy">Privacy Policy</a><a href="#/terms">Terms</a><a href="#/faq">FAQ</a></div></div>
+<div class="cr">© 2026 NeuralForge. All rights reserved.</div></footer>
+<a class="wa" href="https://wa.me/920000000000" target="_blank" rel="noopener" aria-label="WhatsApp">💬</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var cv=document.getElementById('c'),W,H,i,k;
+  var mobile=innerWidth<700,M=mobile?110:220,K=24,OY=.55,V3=THREE.Vector3;
+  function rnd(a,b){return a+Math.random()*(b-a)}
+  function sm(t){t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)}
+  var renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+  var scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(32,1,.1,100);
+  // studio reflections (cyan / pink / blue light panels like the reference image)
+  try{
+    var pm=new THREE.PMREMGenerator(renderer),es=new THREE.Scene();
+    es.add(new THREE.Mesh(new THREE.SphereGeometry(40,16,12),new THREE.MeshBasicMaterial({color:0x070d24,side:THREE.BackSide})));
+    var panel=function(c,x,y,z,w,h){var m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:c,side:THREE.DoubleSide}));m.position.set(x,y,z);m.lookAt(0,0,0);es.add(m)};
+    panel(0xffffff,-10,12,10,14,8);panel(0xdfe9ff,12,8,8,10,5);panel(0x00e5ff,16,2,-5,5,16);panel(0x00c8ff,-14,0,6,3,12);
+    panel(0xff2fd0,-16,-3,-8,6,14);panel(0x2a5bff,0,-10,6,24,6);panel(0xffffff,0,16,-8,12,4);panel(0x6a4bff,10,-4,-12,10,8);
+    scene.environment=pm.fromScene(es,.02).texture;
+  }catch(e){}
+  scene.add(new THREE.AmbientLight(0x223355,.55));
+  var key=new THREE.DirectionalLight(0xffffff,1.3);key.position.set(-3,5,6);scene.add(key);
+  var fill=new THREE.DirectionalLight(0x9ab8ff,.35);fill.position.set(3,1,5);scene.add(fill);
+  var rimL=new THREE.DirectionalLight(0x00e5ff,1.4);rimL.position.set(6,2,-3);scene.add(rimL);
+  var mgL=new THREE.PointLight(0xff2fd0,1.2,14);mgL.position.set(-4,1,3);scene.add(mgL);
+  var inner=new THREE.PointLight(0x2a6bff,0,5);scene.add(inner);
+  // glow texture
+  function glowTex(){var c=document.createElement('canvas');c.width=c.height=128;var x=c.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);
+    g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.3,'rgba(255,255,255,.45)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)}
+  var GT=glowTex();
+  function sprite(col,sz,op){var m=new THREE.Sprite(new THREE.SpriteMaterial({map:GT,color:col,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));m.scale.set(sz,sz,1);return m}
+  // materials
+  var WHITE=new THREE.MeshPhysicalMaterial({color:0xf5f8ff,roughness:.14,metalness:0,clearcoat:1,clearcoatRoughness:.04,envMapIntensity:1.5}),
+      GLASS=new THREE.MeshPhysicalMaterial({color:0x020409,roughness:.03,metalness:.6,clearcoat:1,clearcoatRoughness:.02,envMapIntensity:1.8}),
+      METAL=new THREE.MeshStandardMaterial({color:0x232b3d,metalness:.9,roughness:.22,envMapIntensity:1.4}),
+      SILVER=new THREE.MeshStandardMaterial({color:0xc9d3e6,metalness:1,roughness:.18,envMapIntensity:1.3}),
+      RUBBER=new THREE.MeshStandardMaterial({color:0x0b0e16,roughness:.6,metalness:.1}),
+      CYAN=new THREE.MeshBasicMaterial({color:0x00e5ff}),
+      INNER=new THREE.MeshStandardMaterial({color:0x07102a,emissive:0x0a3a55,emissiveIntensity:.7,side:THREE.BackSide});
+  function mesh(g,m,x,y,z){var o=new THREE.Mesh(g,m);o.position.set(x||0,y||0,z||0);return o}
+  function defo(g){var ps=g.attributes.position,j,y;for(j=0;j<ps.count;j++){y=ps.getY(j);ps.setX(j,ps.getX(j)*(1+.07*Math.max(0,-y)));ps.setZ(j,ps.getZ(j)*(1+.03*Math.max(0,-y)))}return g}
+  function radTex(stops){var c=document.createElement('canvas');c.width=c.height=128;var x=c.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);stops.forEach(function(q){g.addColorStop(q[0],q[1])});x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)}
+  var ET=radTex([[0,'rgba(255,255,255,1)'],[.35,'rgba(150,250,255,1)'],[.7,'rgba(0,229,255,.95)'],[.92,'rgba(0,200,255,.5)'],[1,'rgba(0,200,255,0)']]);
+  // ---------- robot ----------
+  var root=new THREE.Group();root.position.y=OY;scene.add(root);
+  var head=new THREE.Group(),body=new THREE.Group();root.add(head);root.add(body);
+  var HS=[1.08,.88,.94],thc=1.0;
+  function ell(geo,mat){var m=new THREE.Mesh(geo,mat);m.scale.set(HS[0],HS[1],HS[2]);return m}
+  var lg=defo(new THREE.SphereGeometry(1,96,64,0,6.2832,thc,Math.PI-thc));
+  head.add(ell(lg,WHITE));head.add(ell(lg,INNER));
+  function half(ps){var g=new THREE.Group(),sg=defo(new THREE.SphereGeometry(1,64,40,ps,Math.PI,0,thc));g.add(ell(sg,WHITE));g.add(ell(sg,INNER));head.add(g);return g}
+  var capL=half(-Math.PI/2),capR=half(Math.PI/2);
+  var rim=new THREE.Mesh(new THREE.TorusGeometry(Math.sin(thc),.014,8,80),new THREE.MeshBasicMaterial({color:0x2a6bff,transparent:true,opacity:0}));
+  rim.rotation.x=Math.PI/2;rim.position.y=Math.cos(thc)*HS[1];rim.scale.set(HS[0],HS[2],1);head.add(rim);
+  var brain=mesh(new THREE.SphereGeometry(.5,24,16),new THREE.MeshBasicMaterial({color:0x1f4fff,transparent:true,opacity:0}),0,.1,0);head.add(brain);
+  var crown=sprite(0x2a6bff,3.2,0);crown.position.set(0,.9,0);head.add(crown);
+  // visor: curved black glass following the head surface (unit-sphere coordinates)
+  function surfN(xu,yu,k){var zu=Math.sqrt(Math.max(0,1-xu*xu-yu*yu)),fx=1+.07*Math.max(0,-yu),fz=1+.03*Math.max(0,-yu);
+    return{p:new V3(xu*HS[0]*fx*k,yu*HS[1]*k,zu*HS[2]*fz*k),n:new V3(xu/HS[0],yu/HS[1],zu/HS[2]).normalize()}}
+  function visorGeo(k){var pos=[],uv=[],idx=[],nu=48,nv=20,a,b;
+    for(a=0;a<=nv;a++)for(b=0;b<=nu;b++){var u=b/nu*2-1,v=a/nv*2-1,m=Math.max(Math.abs(u),Math.abs(v))||1e-6,ud=u/m,vd=v/m,
+      t=Math.pow(Math.pow(Math.abs(ud)/.72,4)+Math.pow(Math.abs(vd)/.34,4),-.25),sp=surfN(u*t,.02+v*t,k);pos.push(sp.p.x,sp.p.y,sp.p.z);uv.push(b/nu,a/nv)}
+    for(a=0;a<nv;a++)for(b=0;b<nu;b++){var i0=a*(nu+1)+b;idx.push(i0,i0+1,i0+nu+1,i0+1,i0+nu+2,i0+nu+1)}
+    var g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return g}
+  head.add(new THREE.Mesh(visorGeo(1.012),GLASS));
+  function vtex(){var c=document.createElement('canvas');c.width=256;c.height=128;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,256,128);
+    g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.18,'rgba(190,225,255,.32)');g.addColorStop(.3,'rgba(255,255,255,0)');g.addColorStop(.62,'rgba(60,130,255,0)');g.addColorStop(1,'rgba(40,140,255,.24)');
+    x.fillStyle=g;x.fillRect(0,0,256,128);return new THREE.CanvasTexture(c)}
+  head.add(new THREE.Mesh(visorGeo(1.016),new THREE.MeshBasicMaterial({map:vtex(),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false})));
+  var lp=[],a2;for(a2=0;a2<72;a2++){var an=a2/72*6.2832,c=Math.cos(an),s2=Math.sin(an);lp.push(surfN(.72*Math.sign(c)*Math.pow(Math.abs(c),.5),.02+.34*Math.sign(s2)*Math.pow(Math.abs(s2),.5),1.016).p)}
+  head.add(mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(lp,true),120,.016,8,true),METAL));
+  head.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(lp),new THREE.LineBasicMaterial({color:0x00e5ff,transparent:true,opacity:.5})));
+  // glowing eyes (soft gradient discs + halo)
+  var eyes=[-1,1].map(function(sg){
+    var g=new THREE.Group(),d=new THREE.Mesh(new THREE.CircleGeometry(.19,48),new THREE.MeshBasicMaterial({map:ET,transparent:true,depthWrite:false}));d.scale.y=1.1;g.add(d);
+    var gl=sprite(0x00e5ff,1.1,.75);gl.position.z=.05;g.add(gl);head.add(g);return g});
+  // headphones: beveled metal cups, cyan ring, silver plate, glass dome, rubber cushion
+  [-1,1].forEach(function(sg){
+    var cup=new THREE.Group();cup.position.set(sg*1.0,-.03,-.03);cup.rotation.z=-sg*Math.PI/2;
+    var pf=[[0,0],[.4,0],[.46,.03],[.48,.1],[.47,.18],[.43,.24],[.38,.26],[.35,.2],[.2,.2],[0,.215]].map(function(q){return new THREE.Vector2(q[0],q[1])});
+    cup.add(new THREE.Mesh(new THREE.LatheGeometry(pf,56),METAL));
+    var cush=mesh(new THREE.TorusGeometry(.4,.07,12,48),RUBBER,0,-.02,0);cush.rotation.x=Math.PI/2;cup.add(cush);
+    var wr=mesh(new THREE.TorusGeometry(.43,.032,12,56),WHITE,0,.15,0);wr.rotation.x=Math.PI/2;cup.add(wr);
+    var rg=mesh(new THREE.TorusGeometry(.285,.028,12,64),CYAN,0,.208,0);rg.rotation.x=Math.PI/2;cup.add(rg);
+    cup.add(mesh(new THREE.CylinderGeometry(.2,.2,.02,40),SILVER,0,.21,0));
+    var dm=mesh(new THREE.SphereGeometry(.13,24,16),GLASS,0,.215,0);dm.scale.y=.35;cup.add(dm);
+    var gs=sprite(0x00e5ff,1.5,.55);gs.position.y=.32;cup.add(gs);
+    head.add(cup)});
+  // headband (thin dark arc with cyan line)
+  var band=new THREE.Group(),bp=[],bp2=[],q2;
+  for(q2=.15;q2<=.85;q2+=.02){var th=q2*Math.PI;bp.push(new V3(1.14*Math.cos(th),.05+.86*Math.sin(th),-.06));bp2.push(new V3(1.14*Math.cos(th),.05+.86*Math.sin(th),-.02))}
+  band.add(mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(bp),90,.04,10,false),METAL));
+  band.add(mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(bp2),90,.011,6,false),CYAN));
+  head.add(band);
+  // body: ribbed neck, white torso, black collar & base
+  [-.9,-.97,-1.04].forEach(function(y){var r2=mesh(new THREE.TorusGeometry(.2,.032,10,40),METAL,0,y,0);r2.rotation.x=Math.PI/2;body.add(r2)});
+  body.add(mesh(new THREE.CylinderGeometry(.17,.17,.3,28),RUBBER,0,-.97,0));
+  var tg=new THREE.SphereGeometry(1,64,48),tp=tg.attributes.position,j2;
+  for(j2=0;j2<tp.count;j2++){var ty=tp.getY(j2);tp.setX(j2,tp.getX(j2)*(1+.14*Math.max(0,ty)));if(tp.getZ(j2)<0)tp.setZ(j2,tp.getZ(j2)*.85)}
+  var torso=new THREE.Mesh(tg,WHITE);torso.scale.set(.82,.6,.56);torso.position.y=-1.68;body.add(torso);
+  var collar=new THREE.Mesh(new THREE.SphereGeometry(1,40,16,0,6.2832,0,1.15),GLASS);collar.scale.set(.5,.3,.4);collar.position.y=-1.27;body.add(collar);
+  var base=new THREE.Mesh(new THREE.SphereGeometry(1,32,20),GLASS);base.scale.set(.52,.2,.4);base.position.y=-2.2;body.add(base);
+  body.add(mesh(new THREE.BoxGeometry(.03,.3,.03),GLASS,0,-1.95,.545));
+  function limb(p1,p2,r,mat){var d=new V3().subVectors(p2,p1),mm=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),20),mat);mm.position.copy(p1).addScaledVector(d,.5);mm.quaternion.setFromUnitVectors(new V3(0,1,0),d.normalize());return mm}
+  var arms=[];
+  [-1,1].forEach(function(sg){
+    var ag=new THREE.Group();ag.position.set(sg*1.02,-1.52,.02);body.add(ag);arms.push(ag);
+    var O=new V3(0,0,0),el=new V3(-.05*sg,-.35,.25),hd=new V3(-.22*sg,-.55,.48);
+    ag.add(mesh(new THREE.SphereGeometry(.4,48,32),WHITE));
+    ag.add(limb(O,el,.16,WHITE));ag.add(mesh(new THREE.SphereGeometry(.17,28,20),GLASS,el.x,el.y,el.z));
+    ag.add(limb(el,hd,.115,METAL));ag.add(mesh(new THREE.SphereGeometry(.21,32,22),GLASS,hd.x,hd.y,hd.z));
+    [[-.075,-.04],[.075,-.04],[0,.085]].forEach(function(f){var cn=mesh(new THREE.ConeGeometry(.045,.2,12),METAL,hd.x+f[0],hd.y+f[1],hd.z+.2);cn.rotation.x=Math.PI/2;ag.add(cn)});
+  });
+  // floor: glowing rings
+  var fl=mesh(new THREE.CircleGeometry(2.4,48),new THREE.MeshBasicMaterial({map:GT,color:0x00e5ff,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false}),0,-2.35,0);fl.rotation.x=-Math.PI/2;scene.add(fl);
+  [[1.6,.55],[2.3,.25]].forEach(function(r3){var rr=mesh(new THREE.RingGeometry(r3[0],r3[0]+.035,72),new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:r3[1],blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}),0,-2.34,0);rr.rotation.x=-Math.PI/2;scene.add(rr)});
+  var back=sprite(0x2a6bff,9,.35);back.position.set(0,.4,-2);scene.add(back);
+  // ---------- 4 neon cables: brain -> plug into each service card ----------
+  var cards=[].slice.call(document.querySelectorAll('.scard')),ct=document.getElementById('ct'),SEG=56,RAD=6,cables=[];
+  cards.forEach(function(el,ix){
+    var c=new THREE.Color(el.dataset.c),n=(SEG+1)*RAD,ia=[],r,q;
+    el.style.setProperty('--c',el.dataset.c);
+    var pa=new Float32Array(n*3),ca=new Float32Array(n*3);
+    for(q=0;q<SEG;q++)for(r=0;r<RAD;r++){var a0=q*RAD+r,b0=q*RAD+(r+1)%RAD,c0=(q+1)*RAD+r,d0=(q+1)*RAD+(r+1)%RAD;ia.push(a0,b0,c0,b0,d0,c0)}
+    var g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pa,3).setUsage(THREE.DynamicDrawUsage));g.setAttribute('color',new THREE.BufferAttribute(ca,3).setUsage(THREE.DynamicDrawUsage));g.setIndex(ia);
+    var cm=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,toneMapped:false}));cm.frustumCulled=false;cm.visible=false;scene.add(cm);
+    var tip=sprite(c,.8,0),flash=sprite(c,2,0);scene.add(tip);scene.add(flash);
+    var cmat=new THREE.MeshBasicMaterial({color:c,toneMapped:false}),plug=new THREE.Group();
+    plug.add(mesh(new THREE.CylinderGeometry(.1,.1,.26,24),METAL,0,.13,0));
+    plug.add(mesh(new THREE.CylinderGeometry(.055,.055,.16,20),cmat,0,-.08,0));
+    var rg2=mesh(new THREE.TorusGeometry(.105,.022,10,32),cmat,0,.02,0);rg2.rotation.x=Math.PI/2;plug.add(rg2);
+    plug.visible=false;scene.add(plug);
+    cables.push({el:el,c:c,cm:cm,tip:tip,flash:flash,plug:plug,pa:pa,ca:ca,g:g,x0:-.36+ix*.24});
+  });
+  function bez(a,b,c,d,u,o){var v=1-u,w0=v*v*v,w1=3*v*v*u,w2=3*v*u*u,w3=u*u*u;o.set(a.x*w0+b.x*w1+c.x*w2+d.x*w3,a.y*w0+b.y*w1+c.y*w2+d.y*w3,a.z*w0+b.z*w1+c.z*w2+d.z*w3)}
+  // ---------- layout / input ----------
+  function resize(){W=cv.clientWidth;H=cv.clientHeight;renderer.setSize(W,H,false);camera.aspect=W/H;
+    if(!mobile)camera.setViewOffset(W,H,-W*.12,0,W,H);camera.updateProjectionMatrix()}
+  addEventListener('resize',resize);resize();
+  var hero=document.getElementById('hero'),copies=document.querySelectorAll('.copy'),bar=document.getElementById('bar'),cur=0,tgt=0,last=-1;
+  function readScroll(){var r=hero.getBoundingClientRect(),m=hero.offsetHeight-innerHeight;tgt=m>0?Math.max(0,Math.min(1,-r.top/m)):0}
+  addEventListener('scroll',readScroll,{passive:true});readScroll();
+  var tmx=0,tmy=0,mx=0,my=0,idle=true;
+  addEventListener('pointermove',function(e){tmx=e.clientX/innerWidth*2-1;tmy=e.clientY/innerHeight*2-1;idle=false},{passive:true});
+  var target=new V3(0,.35,0),R=mobile?11:8.4;
+  function loop(){
+    if(!hero.offsetHeight){requestAnimationFrame(loop);return}
+    var t=performance.now()*.001;
+    if(idle){tmx=Math.sin(t*.5)*.4;tmy=Math.sin(t*.37)*.2}
+    mx+=(tmx-mx)*.07;my+=(tmy-my)*.07;cur+=(tgt-cur)*.07;var p=cur;
+    var o=sm((p-.3)/.2),ni=sm((p-.42)/.22);
+    // camera: front -> above the head -> back to front
+    var camP=1.0*sm((p-.12)/.2)-.85*sm((p-.52)/.22)-my*.1;
+    camera.position.set(mx*.3,target.y+R*Math.sin(camP),R*Math.cos(camP));camera.lookAt(target);
+    // mouse: head follows more than body
+    head.rotation.y=mx*.7*(1-.4*o);head.rotation.x=my*.25;body.rotation.y=mx*.22;
+    root.position.y=OY+Math.sin(t*1.2)*.03;arms.forEach(function(g,i){g.rotation.x=Math.sin(t*1.1+i*1.7)*.05});
+    // head opening
+    capL.position.set(-o*.9,o*.45,0);capL.rotation.z=o*.45;capR.position.set(o*.9,o*.45,0);capR.rotation.z=-o*.45;
+    band.position.y=o*.55;band.scale.x=1+o*.25;
+    rim.material.opacity=o;brain.material.opacity=o*.8;crown.material.opacity=o*.9;inner.intensity=o*3;inner.position.set(0,OY+.3,0);
+    // eyes follow mouse + blink
+    var bt=t%4.2,bl=bt<.14?Math.abs(bt-.07)/.07:1;
+    eyes.forEach(function(g,ix){var sg=ix?1:-1,x=Math.max(-.55,Math.min(.55,sg*.3+mx*.07)),y=.03-my*.05,sf=surfN(x,y,1.03);
+      g.position.copy(sf.p);g.quaternion.setFromUnitVectors(new V3(0,0,1),sf.n);g.scale.set(1,Math.max(.06,bl),1);g.children[1].material.opacity=.7+.15*Math.sin(t*3);g.visible=o<.85});
+    // cables grow one by one, plug into their card, card starts glowing
+    camera.updateMatrixWorld();
+    var ap=mobile?new V3(0,1,0):new V3(1,0,0),ray=new V3(),pz=.9,A=new V3(),Bv=new V3(),tan=new V3(),n1=new V3(),n2=new V3(),ref=new V3();
+    ct.classList.toggle('on',p>.46);
+    cables.forEach(function(cb,ix){
+      var gk=sm((p-(.5+.1*ix))/.1),pl=sm((p-(.6+.1*ix))/.04),el=cb.el;
+      el.classList.toggle('on',p>.46+.1*ix);el.classList.toggle('live',pl>.9);
+      if(gk<=.002){cb.cm.visible=false;cb.tip.material.opacity=0;cb.plug.visible=false;cb.flash.material.opacity=0;return}
+      var pr=el.querySelector('.port').getBoundingClientRect(),
+          nx=(pr.left+pr.width/2)/W*2-1,ny=-((pr.top+pr.height/2)/H*2-1);
+      ray.set(nx,ny,.5).unproject(camera).sub(camera.position).normalize();
+      var tt=(pz-camera.position.z)/ray.z,E=new V3().copy(camera.position).addScaledVector(ray,tt),
+          Ee=E.clone().addScaledVector(ap,.4*(1-pl)),
+          P0=new V3(cb.x0,root.position.y+.85,0),P1=new V3(cb.x0-.3,root.position.y+2.0+ix*.12,.3),
+          P2=Ee.clone().addScaledVector(ap,1.4).add(new V3(0,.5,0)),P3=Ee;
+      var gg=Math.min(gk,1),rad=.034,q,r;
+      for(q=0;q<=SEG;q++){
+        var u=gg*q/SEG;bez(P0,P1,P2,P3,u,A);
+        bez(P0,P1,P2,P3,Math.min(1,u+.003),Bv);bez(P0,P1,P2,P3,Math.max(0,u-.003),tan);tan.subVectors(Bv,tan);
+        if(tan.lengthSq()<1e-12)tan.set(0,-1,0);tan.normalize();
+        ref.set(0,0,1);if(Math.abs(tan.z)>.9)ref.set(1,0,0);n1.crossVectors(tan,ref).normalize();n2.crossVectors(tan,n1);
+        var br=.7;for(var j=0;j<3;j++){var pu=((t*.45+j/3+ix*.19)%1)*gg;br+=.45*Math.exp(-Math.pow((u-pu)/.05,2))}
+        for(r=0;r<RAD;r++){var an=r/RAD*6.2832,cs=Math.cos(an)*rad,sn=Math.sin(an)*rad,o3=(q*RAD+r)*3;
+          cb.pa[o3]=A.x+n1.x*cs+n2.x*sn;cb.pa[o3+1]=A.y+n1.y*cs+n2.y*sn;cb.pa[o3+2]=A.z+n1.z*cs+n2.z*sn;
+          cb.ca[o3]=cb.c.r*br;cb.ca[o3+1]=cb.c.g*br;cb.ca[o3+2]=cb.c.b*br}
+      }
+      cb.g.attributes.position.needsUpdate=true;cb.g.attributes.color.needsUpdate=true;cb.cm.visible=true;
+      bez(P0,P1,P2,P3,gg,A);cb.tip.position.copy(A);cb.tip.material.opacity=gk<.999?1:.4;
+      cb.plug.visible=gk>.99;cb.plug.position.copy(Ee);cb.plug.rotation.z=mobile?0:-Math.PI/2;
+      cb.flash.position.copy(E);cb.flash.material.opacity=Math.sin(pl*Math.PI)*.95+(pl>.99?.25:0);
+    });
+    document.getElementById('done').classList.toggle('on',cables[cables.length-1].el.classList.contains('live'));
+    renderer.render(scene,camera);
+    var st=p<.28?0:p<.5?1:-1;
+    if(st!==last){last=st;copies.forEach(function(e){e.classList.toggle('on',+e.dataset.s===st)})}
+    bar.style.height=(p*100)+'%';
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+<script>
+(function(){
+var $=function(q,r){return(r||document).querySelector(q)},$$=function(q,r){return[].slice.call((r||document).querySelectorAll(q))};
+var MAIL='hello@yourdomain.com';
+var SV=[['⚙️','AI Automation','n8n workflows that connect your tools and remove manual work.',['Lead capture to CRM','Auto follow-ups and reports','Invoices and reminders']],
+['🎬','AI Video Ads','Scroll-stopping AI-generated ads for TikTok, Reels and Meta.',['Script, visuals and voice','Multiple ad variants','Fast turnaround']],
+['💬','Custom Chatbots','WhatsApp and website bots trained on your business data.',['24/7 instant replies','Lead qualification','Human hand-off']],
+['🧠','Prompt Engineering','Reliable prompts and agents tuned for your exact use case.',['Prompt libraries','AI agents and workflows','Team training']]];
+var PO=[{s:'automate-small-business',t:'5 tasks every small business should automate with AI',d:'Oct 2026',g:'Automation',b:['Most teams lose hours every week to copy-pasting leads, sending reminders and building reports. These are perfect for AI workflows.','Start with one task, connect it with n8n, measure the hours saved, then expand. Small wins compound fast.']},
+{s:'ai-video-ads',t:'How AI video ads cut your creative costs',d:'Sep 2026',g:'Video Ads',b:['AI lets you test ten ad angles in the time a traditional shoot needs for one.','Pair strong hooks with fast iteration and let your analytics pick the winner.']},
+{s:'whatsapp-chatbot',t:'Why every service business needs a WhatsApp chatbot',d:'Sep 2026',g:'Chatbots',b:['Customers expect replies in minutes, not hours. A trained bot answers instantly and qualifies leads around the clock.','Keep a human hand-off for complex questions and review chats weekly to improve answers.']}];
+var hdr=function(t,h,l){return'<div class="pg"><span class="tag">'+t+'</span><h1>'+h+'</h1><p class="lead">'+l+'</p>'};
+var card=function(i,h,p,x,c){return'<div class="card rv '+(c||'')+'"><i>'+i+'</i><h3>'+h+'</h3><p>'+p+'</p>'+(x||'')+'</div>'};
+var ul=function(a){return'<ul>'+a.map(function(x){return'<li>'+x+'</li>'}).join('')+'</ul>'};
+var cta=function(){return'<div class="band rv"><h2>Ready to plug AI into your business?</h2><a class="btn" href="#/contact">Book a free AI audit</a></div>'};
+var P={
+services:function(){return hdr('Services','Four ways we <span>plug AI</span> into your business','Pick one service or combine them into a complete AI system.')+'<div class="g">'+SV.map(function(v){return card(v[0],v[1],v[2],ul(v[3]))}).join('')+'</div></div>'+cta()},
+work:function(){return hdr('Work','Results that <span>speak</span>','Sample case studies. Replace with your real projects.')+'<div class="g">'+[['Lead automation','E-commerce brand','Automated lead capture and follow-up across WhatsApp and email.','12 hrs/week saved'],['AI video ads','Fitness startup','A batch of AI ad variants tested on TikTok and Meta.','3x more creatives tested'],['Support chatbot','Local clinic','WhatsApp bot handling bookings and common questions.','70% faster replies']].map(function(c){return card('📈',c[0],c[2],'<p style="margin-top:12px"><span class="tag">'+c[1]+'</span><br><b style="color:#2a6bff">'+c[3]+'</b></p>')}).join('')+'</div></div>'+cta()},
+pricing:function(){return hdr('Pricing','Simple, <span>transparent</span> pricing','Sample plans. Edit prices and features to match your offers.')+'<div class="g">'+[['Starter','$299','one-time',['1 automation workflow','Setup and testing','7 days support']],['Growth','$799','one-time',['Up to 4 workflows','AI chatbot or ad pack','30 days support'],'hot'],['Scale','Custom','per project',['Full AI system','Agents and integrations','Priority support']]].map(function(p){return card('',p[0],'','<div class="pri">'+p[1]+' <small>'+p[2]+'</small></div>'+ul(p[3])+'<p style="margin-top:18px"><a class="btn" href="#/contact">Get started</a></p>',p[4])}).join('')+'</div></div>'},
+blog:function(a){var p=PO.filter(function(x){return x.s===a})[0];
+ if(a&&p)return'<div class="pg art"><span class="tag">'+p.g+' · '+p.d+'</span><h1>'+p.t+'</h1>'+p.b.map(function(x){return'<p>'+x+'</p>'}).join('')+'<a class="btn" href="#/blog">← All articles</a></div>';
+ return hdr('Blog','Ideas on <span>AI and growth</span>','Practical tips for using AI in your business.')+'<div class="g">'+PO.map(function(x){return'<a class="card rv" href="#/blog/'+x.s+'"><span class="tag">'+x.g+' · '+x.d+'</span><h3>'+x.t+'</h3><p>'+x.b[0]+'</p></a>'}).join('')+'</div></div>'},
+about:function(){return hdr('About','We build AI that <span>works for you</span>','NeuralForge is a small, fast team that turns AI into real business results. Replace this with your story.')+'<div class="g">'+[['🎯','Results first','Every project starts with a measurable goal.'],['⚡','Fast delivery','Quick builds, clear communication, no surprises.'],['🤝','Long-term partner','We stay after launch to improve and support.']].map(function(v){return card(v[0],v[1],v[2])}).join('')+'</div><h2 style="margin:60px 0 20px">The team</h2><div class="g">'+['Founder|AI & automation lead','Designer|Video & creative','Engineer|Chatbots & integrations'].map(function(t){t=t.split('|');return'<div class="card rv"><div class="av">'+t[0][0]+'</div><h3>'+t[0]+'</h3><p>'+t[1]+'</p></div>'}).join('')+'</div></div>'+cta()},
+faq:function(){return hdr('FAQ','Common <span>questions</span>','Cannot find your answer? Contact us.')+[['How long does a project take?','Most automations and chatbots are delivered in 1–2 weeks. Video ad packs are faster.'],['Do I need technical knowledge?','No. We handle setup, testing and training, and give you simple guides.'],['Which tools do you use?','n8n, OpenAI/Claude models, WhatsApp API and modern AI video tools.'],['Can you work with my existing tools?','Yes. We connect to most CRMs, email, sheets and messaging platforms.'],['What if something breaks?','Every plan includes support, and we offer maintenance plans.'],['How do payments work?','A deposit to start and the balance on delivery. Details are shared in your proposal.']].map(function(q){return'<details class="rv"><summary>'+q[0]+'</summary><p>'+q[1]+'</p></details>'}).join('')+'</div>'},
+contact:function(){return hdr('Contact','Let us <span>plug in</span>','Tell us about your project and we will reply within 24 hours.')+'<form id="cf"><input name="name" placeholder="Your name" required><input name="email" type="email" placeholder="Email" required><select name="service"><option>AI Automation</option><option>AI Video Ads</option><option>Custom Chatbots</option><option>Prompt Engineering</option></select><textarea name="msg" rows="5" placeholder="Tell us about your project" required></textarea><button class="btn" style="border:0;cursor:pointer;font:inherit">Send message</button></form><p class="lead" style="margin-top:30px">Or email <b>'+MAIL+'</b> or message us on WhatsApp (button at the bottom right).</p></div>'},
+privacy:function(){return hdr('Legal','Privacy <span>Policy</span>','Template only. Have a lawyer review before use.')+'<div class="leg"><h3>Information we collect</h3><p>Details you submit through our contact form, such as name, email and project info.</p><h3>How we use it</h3><p>To reply to enquiries and deliver services. We do not sell your data.</p><h3>Cookies and analytics</h3><p>We may use basic analytics. You can disable cookies in your browser.</p><h3>Contact</h3><p>Questions? Email '+MAIL+'.</p></div></div>'},
+terms:function(){return hdr('Legal','Terms of <span>Service</span>','Template only. Have a lawyer review before use.')+'<div class="leg"><h3>Services</h3><p>Scope, timeline and price are agreed in a written proposal before work begins.</p><h3>Payments</h3><p>A deposit starts the project; the balance is due on delivery.</p><h3>Intellectual property</h3><p>Final deliverables are transferred to the client after full payment.</p><h3>Liability</h3><p>Services are provided as agreed; we are not liable for indirect losses.</p></div></div>'},
+'404':function(){return hdr('404','Cable <span>unplugged</span','This page does not exist.')+'<a class="btn" href="#/">Back to home</a></div>'}};
+var T={'':'Home',services:'Services',work:'Work',pricing:'Pricing',blog:'Blog',about:'About',faq:'FAQ',contact:'Contact',privacy:'Privacy Policy',terms:'Terms'};
+// home sections below the animation
+$('#home').insertAdjacentHTML('beforeend','<section class="sec"><span class="tag">What we do</span><h2>AI services that <span>actually ship</span></h2><div class="g" style="margin-top:28px">'+SV.map(function(v){return'<a class="card rv" href="#/services"><i>'+v[0]+'</i><h3>'+v[1]+'</h3><p>'+v[2]+'</p></a>'}).join('')+'</div></section>'+
+'<section class="sec"><span class="tag">How it works</span><h2>From idea to <span>live</span> in 3 steps</h2><div class="g" style="margin-top:28px">'+[['01','Discover','We map your workflow and find where AI saves the most time.'],['02','Build','We create, connect and test your automation, bot or ads.'],['03','Launch','We go live, train your team and keep improving.']].map(function(x){return'<div class="card rv"><div class="num" style="font-size:34px">'+x[0]+'</div><h3>'+x[1]+'</h3><p>'+x[2]+'</p></div>'}).join('')+'</div></section>'+
+'<section class="sec"><div class="g">'+[[120,'+','Automations delivered'],[40,'+','Happy clients'],[70,'%','Average time saved'],[24,'h','Reply time']].map(function(x){return'<div class="card rv" style="text-align:center"><div class="num" data-n="'+x[0]+'" data-s="'+x[1]+'">0</div><p>'+x[2]+' (sample)</p></div>'}).join('')+'</div></section>'+
+'<section class="sec"><span class="tag">Testimonials</span><h2>Loved by <span>busy teams</span></h2><div class="g" style="margin-top:28px">'+[['“They automated our lead follow-up and we stopped losing customers.”','Client name, Company'],['“The AI ads gave us ten new creatives in days.”','Client name, Company']].map(function(x){return card('⭐','',x[0],'<p style="margin-top:12px"><b>'+x[1]+'</b></p>')}).join('')+'</div></section>'+cta());
+// router
+var wipe=$('.wipe');
+function go(){var h=location.hash.replace(/^#\/?/,'').split('/'),r=h[0],home=r==='',v=$('#view');
+ $('#home').classList.toggle('on',home);v.classList.toggle('on',!home);
+ if(!home)v.innerHTML=(P[r]||P['404'])(h[1]);
+ document.title=(T[r]||'Page not found')+' – NeuralForge';
+ $$('.links a').forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#/'+r||(home&&a.getAttribute('href')==='#/'))});
+ $('.links').classList.remove('open');window.scrollTo(0,0);
+ wipe.classList.remove('go');void wipe.offsetWidth;wipe.classList.add('go');
+ reveal();setTimeout(function(){dispatchEvent(new Event('resize'))},30)}
+addEventListener('hashchange',go);
+$('.burger').onclick=function(){$('.links').classList.toggle('open')};
+// reveal + counters
+function count(el){if(el._d)return;el._d=1;var n=+el.dataset.n,t0=performance.now();(function f(t){var k=Math.min(1,(t-t0)/1400);el.textContent=Math.round(n*(1-Math.pow(1-k,3)))+(el.dataset.s||'');if(k<1)requestAnimationFrame(f)})(t0)}
+var io=window.IntersectionObserver&&new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');$$('[data-n]',e.target).forEach(count);io.unobserve(e.target)}})},{threshold:.15});
+function reveal(){$$('.rv:not(.in)').forEach(function(e){if(io)io.observe(e);else{e.classList.add('in');$$('[data-n]',e).forEach(count)}})}
+// contact form -> opens email app (no backend needed)
+document.addEventListener('submit',function(e){if(e.target.id!=='cf')return;e.preventDefault();var d=new FormData(e.target);
+ location.href='mailto:'+MAIL+'?subject='+encodeURIComponent('Project enquiry: '+d.get('service'))+'&body='+encodeURIComponent(d.get('msg')+'\n\n'+d.get('name')+' ('+d.get('email')+')');
+ e.target.outerHTML='<p class="lead">Thanks! Your email app should open. If not, write to '+MAIL+'.</p>'});
+// cursor glow + card spotlight
+var cur=$('.cur');
+addEventListener('pointermove',function(e){cur.style.transform='translate('+e.clientX+'px,'+e.clientY+'px)';var c=e.target.closest&&e.target.closest('.card');if(c){var r=c.getBoundingClientRect();c.style.setProperty('--x',e.clientX-r.left+'px');c.style.setProperty('--y',e.clientY-r.top+'px')}},{passive:true});
+// neural-network background on inner pages
+var bg=$('#bg'),bx=bg.getContext&&bg.getContext('2d'),NS=[],mx=-999,my=-999,i;
+if(bx){
+ var rs=function(){bg.width=innerWidth;bg.height=innerHeight};rs();addEventListener('resize',rs);
+ addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY},{passive:true});
+ for(i=0;i<(innerWidth<700?30:60);i++)NS.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35});
+ (function f(){bx.clearRect(0,0,bg.width,bg.height);
+  if(!$('#home').classList.contains('on')){
+   NS.forEach(function(a,k){a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>bg.width)a.vx*=-1;if(a.y<0||a.y>bg.height)a.vy*=-1;
+    var dm=Math.hypot(a.x-mx,a.y-my);bx.fillStyle=dm<180?'#4d8bff':'#2a6bff55';bx.beginPath();bx.arc(a.x,a.y,dm<180?2.4:1.5,0,6.3);bx.fill();
+    for(var j=k+1;j<NS.length;j++){var b=NS[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<130){bx.strokeStyle='rgba(42,107,255,'+(.25*(1-d/130)+(dm<180?.25:0))+')';bx.beginPath();bx.moveTo(a.x,a.y);bx.lineTo(b.x,b.y);bx.stroke()}}})}
+  requestAnimationFrame(f)})()}
+go();
+})();
+</script>
+</body>
+</html>
